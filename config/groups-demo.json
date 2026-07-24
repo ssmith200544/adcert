@@ -1,0 +1,17 @@
+{
+  "_comment": "Small demo config to pair with Seed-DemoLab.ps1. No group-to-reviewer mappings, so every grant routes to that person's own AD manager - the simplest routing story to narrate on camera. Grants whose owner cannot be resolved land in the _unrouted package instead of being dropped.",
+  "groups": [
+    { "name": "Enclave-HPC-Users",
+      "plain_language": "Members can log into the enclave HPC nodes and run jobs against CUI datasets." },
+    { "name": "Enclave-Storage-RW",
+      "plain_language": "Members can read and modify files on the CUI project shares." },
+    { "name": "Enclave-VPN-Access",
+      "plain_language": "Members can reach the enclave network remotely through the VPN." },
+    { "name": "Enclave-Admins",
+      "plain_language": "Members hold administrative rights over enclave servers. Privileged group." }
+  ],
+  "reviewers": {
+    "_escalation": "alindqvist"
+  },
+  "privileged_groups": ["Enclave-Admins"]
+}

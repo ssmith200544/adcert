@@ -1,0 +1,18 @@
+{
+  "_comment": "adcert campaign config. 'reviewers' maps group -> reviewer sam; members of unmapped groups route to their own AD manager attribute. '_escalation' receives entries where the mapped reviewer would be certifying their own access. 'plain_language' descriptions appear on every review row — write them for the supervisor, not the sysadmin.",
+  "groups": [
+    { "name": "Enclave-HPC-Users",
+      "plain_language": "Members can log into the enclave HPC nodes and run jobs against CUI datasets." },
+    { "name": "Enclave-Storage-RW",
+      "plain_language": "Members can read and modify files on the CUI project shares." },
+    { "name": "Enclave-VPN-Access",
+      "plain_language": "Members can reach the enclave network remotely through the VPN." },
+    { "name": "Enclave-Admins",
+      "plain_language": "Members hold administrative rights over enclave servers. Privileged group." }
+  ],
+  "reviewers": {
+    "Enclave-Admins": "alindqvist",
+    "_escalation": "alindqvist"
+  },
+  "privileged_groups": ["Enclave-Admins"]
+}
