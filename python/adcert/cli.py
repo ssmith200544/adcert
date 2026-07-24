@@ -122,8 +122,8 @@ def cmd_compile_evidence(args) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
         prog="adcert",
-        description="Humane periodic access reviews for AD-backed CUI enclaves "
-                    "(NIST SP 800-171 AC.L2-3.1.1 / 3.1.2).")
+        description="Humane periodic user access reviews for Active Directory "
+                    "")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     g = sub.add_parser("generate-lab", help="write a synthetic demo snapshot")

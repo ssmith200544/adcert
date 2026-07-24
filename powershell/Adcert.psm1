@@ -1,4 +1,6 @@
-# Adcert.psm1 - humane periodic access reviews for AD-backed CUI enclaves.
+# Adcert.psm1 - humane periodic user access reviews for Active Directory.
+# Helps satisfy the access-review / access-recertification control common to
+# SOC 2, ISO 27001, HIPAA, PCI DSS, NIST 800-53/800-171 and general IT audit.
 # Windows PowerShell 5.1 compatible. No dependencies beyond RSAT AD module
 # (and that only for collection; scoring/HTML/evidence are pure PowerShell).
 
@@ -6,7 +8,14 @@ Set-StrictMode -Version 2.0
 
 $script:DormantDays = 90
 $script:StaleNote = "lastLogonTimestamp replicates lazily and may be up to 14 days stale; treat dormancy as approximate."
-$script:Controls = @("AC.L2-3.1.1", "AC.L2-3.1.2")
+# Default compliance framing, used when the config does not supply its own.
+# Override per-campaign with a "compliance" block in the config JSON so the
+# same tool serves SOC 2, ISO 27001, HIPAA, PCI DSS, NIST, or internal audit.
+$script:DefaultCompliance = [ordered]@{
+    framework = "User Access Review"
+    summary   = "Evidences periodic review of user access rights and enforcement of least privilege, supporting access-recertification controls across common frameworks (SOC 2 CC6.x, ISO 27001 A.5.18, HIPAA 164.308(a)(4), PCI DSS 7, NIST 800-53 AC-2)."
+    controls  = @("Periodic access review", "Least-privilege enforcement")
+}
 
 # ---------------------------------------------------------------- utilities
 
@@ -341,7 +350,7 @@ $script:ReviewPageTemplate = @'
     For each row decide whether the access is still required. <b>Revoke</b> and
     <b>Modify</b> require a short justification; a comment on Retain is optional
     but encouraged for privileged or dormant accounts. Your decisions become part
-    of the enclave's access-control evidence (NIST SP 800-171 3.1.1 / 3.1.2).
+    of the organization's access-review evidence.
   </div>
   <div class="prog"><div class="bar"><i id="fill"></i></div><span id="count"></span></div>
   <div id="list"></div>
@@ -538,8 +547,10 @@ function Test-DecisionFile {
 function New-Attestation {
     param(
         [Parameter(Mandatory)]$Decision,
-        [Parameter(Mandatory)][string]$SnapshotSha256
+        [Parameter(Mandatory)][string]$SnapshotSha256,
+        [string[]]$Controls = @()
     )
+    if (-not $Controls -or $Controls.Count -eq 0) { $Controls = @($script:DefaultCompliance.controls) }
     $decisions = @()
     foreach ($d in $Decision['decisions']) {
         $decisions += [ordered]@{
@@ -555,7 +566,7 @@ function New-Attestation {
         decided_at         = $Decision['decided_at']
         compiled_at        = Get-UtcNowIso
         snapshot_sha256    = $SnapshotSha256
-        controls           = $script:Controls
+        controls           = $Controls
         decisions          = $decisions
     }
     $body['attestation_sha256'] = Get-Sha256OfString (ConvertTo-CanonicalJson $body)
@@ -612,12 +623,8 @@ $script:ReportTemplate = @'
  <b>Reviewers completed:</b> __DONE__ of __TOTAL__<br>
  <b>Access grants reviewed:</b> __REVIEWED__
 </p>
-<div class="controls"><b>Control mapping:</b> This artifact evidences periodic
-review of authorized access and enforcement of least privilege under
-NIST SP 800-171 / CMMC L2 controls <b>AC.L2-3.1.1</b> (limit system access to
-authorized users) and <b>AC.L2-3.1.2</b> (limit access to authorized
-transactions and functions). Revocations executed following personnel
-separations additionally support <b>PS.L2-3.9.2</b>.</div>
+<div class="controls"><b>Control mapping:</b> __COMPLIANCE_SUMMARY__<br>
+<b>Controls covered:</b> __COMPLIANCE_CONTROLS__</div>
 <h2>Decision summary</h2>
 <table><tr><th>Decision</th><th>Count</th></tr>__SUMMARY_ROWS__</table>
 <h2>Reviewer attestations</h2>
@@ -639,8 +646,12 @@ function New-EvidenceReport {
         [Parameter(Mandatory)][string]$Campaign,
         [Parameter(Mandatory)][string]$SnapshotSha256,
         [Parameter(Mandatory)][AllowEmptyCollection()]$Attestations,
-        [Parameter(Mandatory)][AllowEmptyCollection()][string[]]$ExpectedReviewers
+        [Parameter(Mandatory)][AllowEmptyCollection()][string[]]$ExpectedReviewers,
+        $Compliance = $null
     )
+    if ($null -eq $Compliance) { $Compliance = $script:DefaultCompliance }
+    $complianceSummary = [string]$Compliance['summary']
+    $complianceControls = (@($Compliance['controls']) | ForEach-Object { HtmlEnc $_ }) -join ', '
     $counts = @{ retain = 0; revoke = 0; modify = 0 }
     $doneReviewers = @{}
     foreach ($a in $Attestations) {
@@ -700,6 +711,8 @@ function New-EvidenceReport {
     $html = $html.Replace('__ATT_ROWS__', $attRows)
     $html = $html.Replace('__REV_SECTION__', $revSection)
     $html = $html.Replace('__OUTSTANDING__', $outHtml)
+    $html = $html.Replace('__COMPLIANCE_SUMMARY__', (HtmlEnc $complianceSummary))
+    $html = $html.Replace('__COMPLIANCE_CONTROLS__', $complianceControls)
     $html
 }
 

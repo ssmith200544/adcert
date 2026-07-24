@@ -1,6 +1,6 @@
 """Synthetic AD snapshot generator (demo-safe mode).
 
-Fabricates a plausible research-enclave org so the tool can be demoed and
+Fabricates a plausible generic company so the tool can be demoed and
 tested without touching production AD. Plants deliberate findings:
 
   * at least one DISABLED account still holding group membership
@@ -23,19 +23,19 @@ FIRST = ["Avery", "Jordan", "Riley", "Morgan", "Casey", "Quinn", "Rowan",
 LAST = ["Lindqvist", "Okafor", "Ramire", "Chen", "Novak", "Bergström",
         "Iwu", "Kowalski", "Haddad", "Ostrom", "Vang", "Petrov", "Delaney",
         "Moreno", "Askari", "Byrne", "Sorensen", "Ito", "Klein", "Marsh"]
-TITLES = ["Research Scientist", "Graduate RA", "Postdoc", "Lab Manager",
-          "Systems Administrator", "PI", "Research Engineer", "Data Analyst"]
-DEPTS = ["Aerospace Eng", "Mech Eng", "ECE", "Chem Eng", "CSE-IT", "Physics"]
+TITLES = ["Analyst", "Associate", "Coordinator", "Team Manager",
+          "Systems Administrator", "Director", "Engineer", "Specialist"]
+DEPTS = ["Finance", "Operations", "Sales", "Marketing", "IT", "HR"]
 
 DEFAULT_GROUPS = [
-    ("Enclave-HPC-Users", "SSH access to enclave HPC compute nodes",
-     "Members can log into the enclave HPC nodes and run jobs against CUI datasets."),
-    ("Enclave-Storage-RW", "Read/write on TrueNAS CUI shares",
-     "Members can read and modify files on the CUI project shares."),
-    ("Enclave-VPN-Access", "Enclave VPN remote access",
-     "Members can reach the enclave network remotely through the VPN."),
-    ("Enclave-Admins", "Enclave administrative access (privileged)",
-     "Members hold administrative rights over enclave servers. Privileged group."),
+    ("Finance-App", "Access to the finance application",
+     "Members can sign in to the finance application and view or edit financial records."),
+    ("HR-Records", "Access to the HR records system",
+     "Members can read and update employee records in the HR system."),
+    ("VPN-Users", "Remote VPN access",
+     "Members can connect to the corporate network remotely over the VPN."),
+    ("App-Admins", "Application administrator rights (privileged)",
+     "Members hold administrator rights over the application. Privileged group."),
 ]
 
 

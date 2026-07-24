@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Access Review — costrom — UAR-2026-Q3</title>
+<title>Access Review — manager1 — UAR-Demo</title>
 <style>
   :root {
     --ink:#1b2733; --paper:#f6f7f8; --card:#ffffff; --line:#d7dde3;
@@ -69,16 +69,16 @@
 <body>
 <header>
   <h1>Periodic Access Review</h1>
-  <div class="sub">Reviewer: <code>costrom</code> &nbsp;·&nbsp; Campaign: UAR-2026-Q3
-    &nbsp;·&nbsp; Review ID: <code>704a4cc8</code></div>
+  <div class="sub">Reviewer: <code>manager1</code> &nbsp;·&nbsp; Campaign: UAR-Demo
+    &nbsp;·&nbsp; Review ID: <code>0ccedc02</code></div>
 </header>
 <div class="wrap">
   <div class="intro">
-    You are certifying <b>9 access grants</b> for people you supervise.
+    You are certifying <b>5 access grants</b> for people you supervise.
     For each row decide whether the access is still required. <b>Revoke</b> and
     <b>Modify</b> require a short justification; a comment on Retain is optional
     but encouraged for privileged or dormant accounts. Your decisions become part
-    of the enclave's access-control evidence (NIST SP 800-171 3.1.1 / 3.1.2).
+    of the organization's access-review evidence.
   </div>
   <div class="prog"><div class="bar"><i id="fill"></i></div><span id="count"></span></div>
   <div id="list"></div>
@@ -89,7 +89,7 @@
   <button id="export" disabled>Export decisions</button>
 </footer>
 <script>
-const PKG = {"review_id": "704a4cc8", "reviewer": "costrom", "campaign": "UAR-2026-Q3", "snapshot_sha256": "390072f2b5ef9a47d79cedee8d69c2e139115c91171253cdafbdf084f8c7e757", "generated_at": "2026-07-18T12:22:57+0000", "entries": [{"group": "Enclave-HPC-Users", "group_plain": "Members can log into the enclave HPC nodes and run jobs against CUI datasets.", "sam": "ebergstr\u00f6m", "display_name": "Elliot Bergstr\u00f6m", "title": "Graduate RA", "department": "Physics", "enabled": false, "last_logon": "2026-02-28T12:22:57+0000", "days_since_logon": 140, "account_expires": null, "flags": ["Account is DISABLED but still holds this membership", "Dormant: last logon 140 days ago"], "risk": 74, "new_since_last_review": false}, {"group": "Enclave-HPC-Users", "group_plain": "Members can log into the enclave HPC nodes and run jobs against CUI datasets.", "sam": "biwu", "display_name": "Blair Iwu", "title": "Research Engineer", "department": "CSE-IT", "enabled": true, "last_logon": "2026-06-24T23:22:57+0000", "days_since_logon": 23, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-HPC-Users", "group_plain": "Members can log into the enclave HPC nodes and run jobs against CUI datasets.", "sam": "epetrov", "display_name": "Emerson Petrov", "title": "Graduate RA", "department": "Aerospace Eng", "enabled": true, "last_logon": "2026-06-28T23:22:57+0000", "days_since_logon": 19, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-Storage-RW", "group_plain": "Members can read and modify files on the CUI project shares.", "sam": "epetrov", "display_name": "Emerson Petrov", "title": "Graduate RA", "department": "Aerospace Eng", "enabled": true, "last_logon": "2026-06-28T23:22:57+0000", "days_since_logon": 19, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-Storage-RW", "group_plain": "Members can read and modify files on the CUI project shares.", "sam": "rbyrne", "display_name": "Riley Byrne", "title": "Graduate RA", "department": "Mech Eng", "enabled": true, "last_logon": "2026-06-30T12:22:57+0000", "days_since_logon": 18, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-Storage-RW", "group_plain": "Members can read and modify files on the CUI project shares.", "sam": "slindqvist", "display_name": "Sage Lindqvist", "title": "Postdoc", "department": "CSE-IT", "enabled": true, "last_logon": "2026-06-11T23:22:57+0000", "days_since_logon": 36, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-Storage-RW", "group_plain": "Members can read and modify files on the CUI project shares.", "sam": "tmarsh14", "display_name": "Tatum Marsh", "title": "Research Engineer", "department": "Physics", "enabled": true, "last_logon": "2026-06-29T01:22:57+0000", "days_since_logon": 19, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-VPN-Access", "group_plain": "Members can reach the enclave network remotely through the VPN.", "sam": "biwu", "display_name": "Blair Iwu", "title": "Research Engineer", "department": "CSE-IT", "enabled": true, "last_logon": "2026-06-24T23:22:57+0000", "days_since_logon": 23, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}, {"group": "Enclave-VPN-Access", "group_plain": "Members can reach the enclave network remotely through the VPN.", "sam": "epetrov", "display_name": "Emerson Petrov", "title": "Graduate RA", "department": "Aerospace Eng", "enabled": true, "last_logon": "2026-06-28T23:22:57+0000", "days_since_logon": 19, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}]};
+const PKG = {"review_id": "0ccedc02", "reviewer": "manager1", "campaign": "UAR-Demo", "snapshot_sha256": "d726881bbd5bf65564152f36cb0e1bf728aa579edd3b8655fb046e4d4f7b73ff", "generated_at": "2026-07-24T20:42:35+0000", "entries": [{"group": "App-Admins", "group_plain": "Members hold administrator rights over the application. Privileged group.", "sam": "jsmith", "display_name": "Jordan Smith", "title": "Analyst", "department": "Operations", "enabled": false, "last_logon": null, "days_since_logon": null, "account_expires": null, "flags": ["Account is DISABLED but still holds this membership", "Account has never logged on", "Privileged group"], "risk": 125, "new_since_last_review": false}, {"group": "VPN-Users", "group_plain": "Members can connect to the corporate network remotely over the VPN.", "sam": "jsmith", "display_name": "Jordan Smith", "title": "Analyst", "department": "Operations", "enabled": false, "last_logon": null, "days_since_logon": null, "account_expires": null, "flags": ["Account is DISABLED but still holds this membership", "Account has never logged on"], "risk": 80, "new_since_last_review": false}, {"group": "VPN-Users", "group_plain": "Members can connect to the corporate network remotely over the VPN.", "sam": "cwlee", "display_name": "Casey Lee", "title": "Contractor", "department": "Operations", "enabled": true, "last_logon": null, "days_since_logon": null, "account_expires": "2026-08-05T20:42:35+0000", "flags": ["Account has never logged on", "Account expires in 11 days"], "risk": 40, "new_since_last_review": false}, {"group": "Finance-App", "group_plain": "Members can sign in to the finance application and view or edit financial records.", "sam": "bpatel", "display_name": "Bailey Patel", "title": "Associate", "department": "Finance", "enabled": true, "last_logon": null, "days_since_logon": null, "account_expires": null, "flags": ["Account has never logged on"], "risk": 30, "new_since_last_review": false}, {"group": "Finance-App", "group_plain": "Members can sign in to the finance application and view or edit financial records.", "sam": "awong", "display_name": "Alex Wong", "title": "Analyst", "department": "Finance", "enabled": true, "last_logon": "2026-07-24T20:42:35+0000", "days_since_logon": 0, "account_expires": null, "flags": [], "risk": 0, "new_since_last_review": false}]};
 const state = {};   // key -> {decision, justification}
 const keyOf = e => e.group + "||" + e.sam;
 

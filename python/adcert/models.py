@@ -55,7 +55,7 @@ class Member:
 class Group:
     name: str
     ad_description: str = ""
-    plain_language: str = ""               # "Members can SSH to enclave HPC nodes"
+    plain_language: str = ""               # "Members can sign in to the finance app"
     members: list[Member] = field(default_factory=list)
 
 

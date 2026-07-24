@@ -85,9 +85,17 @@ foreach ($dfile in ($decisionFiles | Sort-Object Name)) {
         foreach ($p in $problems) { Write-Host "      - $p" -ForegroundColor Yellow }
         if ($Strict) { $strictFail = $true; continue }
     }
-    [void]$attestations.Add((New-Attestation -Decision $df -SnapshotSha256 $snapHash))
+    $controls = @()
+    if ($manifest.Contains('compliance') -and $null -ne $manifest['compliance'] -and
+        $manifest['compliance'].Contains('controls')) {
+        $controls = @($manifest['compliance']['controls'])
+    }
+    [void]$attestations.Add((New-Attestation -Decision $df -SnapshotSha256 $snapHash -Controls $controls))
     Write-Host "[+] Attested: $($df['reviewer']) ($(@($df['decisions']).Count) decisions)"
 }
+
+$compliance = $null
+if ($manifest.Contains('compliance')) { $compliance = $manifest['compliance'] }
 
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 ConvertTo-Json @($attestations) -Depth 10 |
@@ -95,7 +103,8 @@ ConvertTo-Json @($attestations) -Depth 10 |
 New-RevocationScript -Attestations @($attestations) |
     Set-Content -Path (Join-Path $OutDir 'revocation_worklist.ps1') -Encoding UTF8
 New-EvidenceReport -Campaign $manifest['campaign'] -SnapshotSha256 $snapHash `
-    -Attestations @($attestations) -ExpectedReviewers @($manifest['reviewers']) |
+    -Attestations @($attestations) -ExpectedReviewers @($manifest['reviewers']) `
+    -Compliance $compliance |
     Set-Content -Path (Join-Path $OutDir 'evidence_report.html') -Encoding UTF8
 
 $done = @{}

@@ -25,7 +25,9 @@
 [CmdletBinding()]
 param(
     [string]$ExpectedDomain = "adcert.lab",
-    [string[]]$OuName = @("Research Enclave", "SDC Enclave", "Demo Enclave"),
+    # current demo OU first; the rest are legacy names from earlier seeder
+    # versions, kept so this can clean up a VM seeded before the rename
+    [string[]]$OuName = @("Demo Company", "Research Enclave", "SDC Enclave", "Demo Enclave"),
     [switch]$Force
 )
 
@@ -42,7 +44,10 @@ if ($domain.DNSRoot -ne $ExpectedDomain) {
 $domainDN = $domain.DistinguishedName
 
 # known lab group names, for the post-teardown sweep
+# current demo group names first; the Enclave-* / SDC-* entries are legacy
+# names from earlier seeder versions, swept up here for the same reason
 $labGroups = @(
+    'Finance-App', 'VPN-Users', 'App-Admins', 'Finance-Team',
     'Enclave-HPC-Users', 'Enclave-Storage-RW', 'Enclave-VPN-Access',
     'Enclave-Admins', 'Enclave-GradStudents',
     'SDC-HPC-Users', 'SDC-Storage-RW', 'SDC-VPN-Access',

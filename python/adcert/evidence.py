@@ -4,8 +4,9 @@ Consumes returned decision files and produces the four campaign outputs:
 
   1. attestation record (JSON)  - per reviewer, hash-chained to the snapshot
   2. evidence report (HTML)     - assessor-facing campaign summary mapped to
-                                  AC.L2-3.1.1 / AC.L2-3.1.2 (and PS.L2-3.9.2
-                                  where revocations follow separations)
+                                  periodic access review and least-privilege
+                                  controls common to SOC 2, ISO 27001, HIPAA,
+                                  PCI DSS, and NIST
   3. revocation worklist (.ps1) - generated Remove-ADGroupMember commands,
                                   -WhatIf by default so nothing fires blind
   4. outstanding tracker         - reviewers who have not returned decisions
@@ -20,7 +21,7 @@ from pathlib import Path
 from .hashing import sha256_canonical_json
 from .models import DecisionFile, VALID_DECISIONS, now_utc, to_iso
 
-CONTROLS = ["AC.L2-3.1.1", "AC.L2-3.1.2", "PS.L2-3.9.2"]
+CONTROLS = ["Periodic access review", "Least-privilege enforcement", "Timely access revocation"]
 
 
 class EvidenceError(ValueError):
@@ -128,11 +129,10 @@ _REPORT = """<!DOCTYPE html>
  <b>Access grants reviewed:</b> {reviewed}
 </p>
 <div class="controls"><b>Control mapping:</b> This artifact evidences periodic
-review of authorized access and enforcement of least privilege under
-NIST SP 800-171 / CMMC L2 controls <b>AC.L2-3.1.1</b> (limit system access to
-authorized users) and <b>AC.L2-3.1.2</b> (limit access to authorized
-transactions and functions). Revocations executed following personnel
-separations additionally support <b>PS.L2-3.9.2</b>.</div>
+review of user access rights and enforcement of least privilege, supporting
+access-recertification controls found in SOC 2 (CC6.1-CC6.3), ISO 27001
+(A.5.18), HIPAA Security Rule (164.308(a)(4)), PCI DSS (Req. 7), and
+NIST 800-53 (AC-2).</div>
 
 <h2>Decision summary</h2>
 <table><tr><th>Decision</th><th>Count</th></tr>{summary_rows}</table>

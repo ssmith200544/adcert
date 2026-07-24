@@ -72,7 +72,7 @@ if ($InputSnapshot) {
 
             # Take the most recent of the replicated (lastLogonTimestamp) and
             # per-DC (lastLogon) attributes. On a single-DC domain the per-DC
-            # value updates immediately, so labs and small enclaves see fresh
+            # value updates immediately, so labs and small sites see fresh
             # activity instead of the up-to-14-day replication lag.
             $llt = 0; $ll = 0
             if ($user.lastLogonTimestamp) { $llt = [long]$user.lastLogonTimestamp }
@@ -137,6 +137,11 @@ $manifest = [ordered]@{
     campaign        = if (@($packages).Count) { $packages[0]['campaign'] } else { $Campaign }
     snapshot_sha256 = $snapHash
     reviewers       = @()
+}
+# carry the compliance framing (if the config supplies one) into the manifest
+# so the evidence report is mapped to whatever framework this campaign serves
+if ($cfg.Contains('compliance') -and $null -ne $cfg['compliance']) {
+    $manifest['compliance'] = $cfg['compliance']
 }
 foreach ($pkg in $packages) {
     $base = Join-Path $OutDir ("review_{0}_{1}" -f $pkg['reviewer'], $pkg['review_id'])

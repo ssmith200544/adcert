@@ -1,23 +1,25 @@
 <#
 .SYNOPSIS
-  adcert demo lab seeder (small) - a deliberately tiny org sized for a video demo.
+  adcert demo lab seeder (minimal) - a tiny generic company sized for a
+  short video demo.
 
 .DESCRIPTION
-  Creates 9 fictional users and 5 groups under a demo OU. The resulting
-  campaign is small enough to walk through on camera:
+  Creates 6 fictional employees and 4 groups under a demo OU. The resulting
+  campaign is intentionally small so it is quick to walk through on camera:
 
-      alindqvist   6 entries   <- the page you review in the demo
-      costrom      3 entries   <- proves routing splits by supervisor
-      _unrouted    2 entries   <- grants with no owner, surfaced not dropped
-      ------------------------
-      11 entries total
+      manager1     5 entries   <- the page you review in the demo
+      _unrouted    1 entry     <- a grant with no owner, surfaced not dropped
+      -----------------------
+      6 entries total
 
   Planted findings, all visible on the reviewer pages:
-    * sbyrne  - DISABLED but still in Enclave-Admins (privileged) and HPC
-    * haskari - contractor whose account expires in 12 days
-    * fmoreno / qokafor - HPC access only via a NESTED group, proving the
+    * jsmith  - DISABLED but still in App-Admins (privileged) and VPN-Users
+    * cwlee    - contractor whose account expires in 12 days
+    * bpatel  - reaches Finance-App only via a NESTED group, proving the
       collector resolves nesting instead of missing the grant
     * everyone reads "Never logged on" until you authenticate as someone
+
+  Group names are generic corporate roles, not tied to any organization.
 
   DEMO LAB ONLY. Refuses to run unless the domain DNS root matches
   -ExpectedDomain (default adcert.lab). Re-runnable: existing objects are
@@ -32,8 +34,7 @@
 [CmdletBinding()]
 param(
     [string]$ExpectedDomain = "adcert.lab",
-    [string]$OuName         = "Research Enclave",
-    # Demo-lab-only credential for all seeded accounts.
+    [string]$OuName         = "Demo Company",
     [string]$SeedPassword   = "Adcert-Demo-2026!"
 )
 
@@ -64,15 +65,12 @@ if (-not (Get-ADOrganizationalUnit -Filter "Name -eq '$OuName'" -ErrorAction Sil
 # ------------------------------------------------------------------- people
 # sam, first, last, title, dept, managerSam ('' = no manager -> _unrouted)
 $people = @(
-    @('alindqvist','Avery','Lindqvist','Principal Investigator','Aerospace Eng',''),
-    @('costrom','Casey','Ostrom','Principal Investigator','Mech Eng',''),
-    @('rchen','Riley','Chen','Research Scientist','Aerospace Eng','alindqvist'),
-    @('sbyrne','Sage','Byrne','Research Scientist','Physics','alindqvist'),
-    @('haskari','Harper','Askari','Contractor','Mech Eng','alindqvist'),
-    @('fmoreno','Finley','Moreno','Graduate RA','Aerospace Eng','alindqvist'),
-    @('qokafor','Quinn','Okafor','Graduate RA','Mech Eng','costrom'),
-    @('dpetrov','Dakota','Petrov','Research Scientist','ECE','costrom'),
-    @('jvang','Jordan','Vang','Lab Manager','Aerospace Eng','')
+    @('manager1','Dana','Reed','Team Manager','Operations',''),
+    @('awong','Alex','Wong','Analyst','Finance','manager1'),
+    @('jsmith','Jordan','Smith','Analyst','Operations','manager1'),
+    @('cwlee','Casey','Lee','Contractor','Operations','manager1'),
+    @('bpatel','Bailey','Patel','Associate','Finance','manager1'),
+    @('rkim','Riley','Kim','Coordinator','Operations','')
 )
 
 foreach ($p in $people) {
@@ -91,21 +89,19 @@ foreach ($p in $people) {
     }
 }
 
-# second pass: manager links (all users must exist first)
 foreach ($p in $people) {
     $sam,$null,$null,$null,$null,$mgr = $p
     if ($mgr) { Set-ADUser -Identity $sam -Manager (Get-ADUser $mgr) }
     else      { Set-ADUser -Identity $sam -Clear manager }
 }
-Write-Host "[+] Manager chains set (2 PIs review; jvang has no manager on purpose)"
+Write-Host "[+] Manager chains set (manager1 reviews; rkim has no manager on purpose)"
 
 # ------------------------------------------------------------------- groups
 $groups = @(
-    @('Enclave-HPC-Users',   'SSH access to enclave HPC compute nodes'),
-    @('Enclave-Storage-RW',  'Read/write on the CUI project shares'),
-    @('Enclave-VPN-Access',  'Enclave VPN remote access'),
-    @('Enclave-Admins',      'Enclave administrative access (privileged)'),
-    @('Enclave-GradStudents','Nested group - graduate research assistants')
+    @('Finance-App',    'Access to the finance application'),
+    @('VPN-Users',      'Remote VPN access'),
+    @('App-Admins',     'Application administrator rights (privileged)'),
+    @('Finance-Team',   'Nested group - finance department staff')
 )
 foreach ($g in $groups) {
     $name,$desc = $g
@@ -120,7 +116,6 @@ foreach ($g in $groups) {
 
 function Set-Members {
     param([string]$Group, [string[]]$Sams)
-    # make membership exactly match the list, so re-runs stay deterministic
     $current = @(Get-ADGroupMember -Identity $Group -ErrorAction SilentlyContinue |
                  Where-Object objectClass -eq 'user' |
                  ForEach-Object { $_.SamAccountName })
@@ -136,38 +131,36 @@ function Set-Members {
     }
 }
 
-Set-Members 'Enclave-GradStudents' @('fmoreno','qokafor')
-Set-Members 'Enclave-HPC-Users'    @('rchen','sbyrne','haskari')
-Set-Members 'Enclave-Storage-RW'   @('rchen','qokafor')
-Set-Members 'Enclave-VPN-Access'   @('dpetrov','jvang')
-Set-Members 'Enclave-Admins'       @('sbyrne','jvang')
+Set-Members 'Finance-Team' @('bpatel')
+Set-Members 'Finance-App'  @('awong')
+Set-Members 'VPN-Users'    @('jsmith','cwlee','rkim')
+Set-Members 'App-Admins'   @('jsmith')
 
-# nested: grad students reach HPC only through Enclave-GradStudents
-Add-ADGroupMember -Identity 'Enclave-HPC-Users' `
-    -Members (Get-ADGroup 'Enclave-GradStudents') -ErrorAction SilentlyContinue
-Write-Host "[+] Memberships set (Enclave-GradStudents nested inside Enclave-HPC-Users)"
+# nested: finance team reaches Finance-App only through Finance-Team
+Add-ADGroupMember -Identity 'Finance-App' `
+    -Members (Get-ADGroup 'Finance-Team') -ErrorAction SilentlyContinue
+Write-Host "[+] Memberships set (Finance-Team nested inside Finance-App)"
 
 # --------------------------------------------------------- planted findings
-Disable-ADAccount -Identity sbyrne
-Write-Host "[!] PLANTED: sbyrne DISABLED but still in Enclave-Admins and Enclave-HPC-Users"
+Disable-ADAccount -Identity jsmith
+Write-Host "[!] PLANTED: jsmith DISABLED but still in App-Admins and VPN-Users"
 
-Set-ADAccountExpiration -Identity haskari -DateTime (Get-Date).AddDays(12)
-Write-Host "[!] PLANTED: haskari (Contractor) account expires in 12 days"
+Set-ADAccountExpiration -Identity cwlee -DateTime (Get-Date).AddDays(12)
+Write-Host "[!] PLANTED: cwlee (Contractor) account expires in 12 days"
 
-Write-Host "[!] PLANTED: grad students reach HPC only via the nested group"
+Write-Host "[!] PLANTED: bpatel reaches Finance-App only via the nested group"
 Write-Host "[!] PLANTED: all seeded users read 'Never logged on' until first authentication"
 
 # ------------------------------------------------------------------ summary
 Write-Host ""
-Write-Host "=== Demo lab ready: 9 users, 11 access grants ==="
+Write-Host "=== Demo lab ready: 6 users, 6 access grants ==="
 Write-Host "    Expected review packages:"
-Write-Host "      alindqvist   6 entries   (sbyrne x2, haskari, fmoreno, rchen x2)"
-Write-Host "      costrom      3 entries   (qokafor x2, dpetrov)"
-Write-Host "      _unrouted    2 entries   (jvang - no manager set)"
+Write-Host "      manager1     5 entries   (jsmith x2, cwlee, awong, bpatel)"
+Write-Host "      _unrouted    1 entry     (rkim - no manager set)"
 Write-Host ""
 Write-Host "    NEXT STEPS"
 Write-Host "    1. Optional, for a 'logged on today' contrast on the review page:"
-Write-Host "         `$c = Get-Credential adcert\rchen   # password: $SeedPassword"
+Write-Host "         `$c = Get-Credential adcert\awong   # password: $SeedPassword"
 Write-Host "         New-PSSession -ComputerName localhost -Credential `$c | Remove-PSSession"
 Write-Host "    2. Build the campaign:"
 Write-Host "         .\New-AdcertCampaign.ps1 -Config ..\config\groups-demo.json -OutDir C:\adcert\UAR-Demo" -ForegroundColor Cyan

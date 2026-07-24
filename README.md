@@ -4,8 +4,9 @@
 
 adcert turns the quarterly access-review ritual — a spreadsheet emailed to
 supervisors who rubber-stamp it — into a small, focused, evidence-producing
-workflow for Active Directory–backed CUI enclaves operating under
-CMMC Level 2 / NIST SP 800-171.
+workflow for any organization that runs Active Directory. It helps satisfy the
+periodic user-access-review (access recertification) control common to SOC 2,
+ISO 27001, HIPAA, PCI DSS, NIST 800-53/800-171, and general IT audit.
 
 The design thesis: **reviewers rubber-stamp because they lack context, not
 because they don't care.** Give a supervisor only *their* people, lead with
@@ -60,9 +61,8 @@ For a demo lab: promote a throwaway DC as `adcert.lab`, then
 `Seed-DemoLab.ps1` produces three small review packages (6 / 3 / 2 entries)
 carrying every planted finding: a disabled account still in the privileged
 group, an expiring contractor, never-logged-on accounts, and a nested group
-proving recursive resolution. `Seed-LabAD.ps1` is the larger 15-user version
-if you want a fuller data set. `Remove-LabAD.ps1` tears either one down; both
-seeders and the teardown refuse to run against any domain but `adcert.lab`.
+proving recursive resolution. `Remove-LabAD.ps1` tears it down again; the
+seeder and the teardown both refuse to run against any domain but `adcert.lab`.
 
 ## What it produces
 
@@ -70,7 +70,7 @@ seeders and the teardown refuse to run against any domain but `adcert.lab`.
 |---|---|
 | Per-reviewer HTML review page | Self-contained, no server, works air-gapped. Retain / Revoke / Modify with required justifications. |
 | Attestation records (JSON) | Hash-chained to the snapshot; tamper-evident. |
-| Evidence report (HTML) | Assessor-facing summary mapped to **AC.L2-3.1.1 / AC.L2-3.1.2** (and **PS.L2-3.9.2** for separation-driven revocations). |
+| Evidence report (HTML) | Auditor-facing summary mapped to the access-review / least-privilege controls of whichever framework you configure (SOC 2, ISO 27001, HIPAA, PCI DSS, NIST). |
 | Revocation worklist (.ps1) | Generated `Remove-ADGroupMember` commands, `-WhatIf` by default — decisions actually get executed. |
 | Outstanding tracker | Reviewers who haven't returned decisions (in the report). |
 
@@ -78,10 +78,10 @@ seeders and the teardown refuse to run against any domain but `adcert.lab`.
 
 * **One runtime, one machine** — Windows PowerShell 5.1 (stock on Server
   2016+). Collection, scoring, HTML generation, and evidence compilation all
-  run where the data lives. Nothing to install inside an enclave, nothing to
+  run where the data lives. Nothing to install on a server, nothing to
   accredit.
 * **Static HTML instead of a web app** — the reviewer interface is a file,
-  not a service: no server in the CUI boundary, delivery over email/share,
+  not a service: no server to stand up, delivery over email or file share,
   works air-gapped.
 * **Last-logon honesty** — the collector takes the most recent of
   `lastLogonTimestamp` (replicated, up to 14 days stale) and `lastLogon`
@@ -100,7 +100,7 @@ seeders and the teardown refuse to run against any domain but `adcert.lab`.
 ## Configuration (`config/groups.json`)
 
 * `groups[].plain_language` — the sentence a supervisor actually reads
-  ("Members can SSH to the enclave HPC nodes"). Write it for the reviewer,
+  ("Members can sign in to the finance application"). Write it for the reviewer,
   not the sysadmin.
 * `reviewers` — group → reviewer routing; unmapped members route to their
   own AD `manager` attribute; `_escalation` catches would-be
@@ -123,13 +123,13 @@ routing, and evidence logic with a 30-case pytest suite
 ## Related work
 
 Access certification is a mature commercial category (SailPoint, Saviynt,
-Okta Identity Governance; YouAttest markets CMMC evidence reports) and
+Okta Identity Governance; several vendors market compliance evidence reports) and
 open-source IAM suites (midPoint, OpenIAM) include certification campaigns.
 All of these assume you deploy an identity-governance *platform*. adcert
-targets the gap below them: a small CUI enclave (dozens of users, one
-security admin) where the realistic alternative isn't SailPoint — it's a
-spreadsheet. adcert reads the AD you already have, requires no server, and
-shapes its output around what a CMMC assessor asks for.
+targets the gap below them: a small or mid-size organization (dozens to a few
+hundred users, one admin) where the realistic alternative isn't SailPoint — it's
+a spreadsheet. adcert reads the AD you already have, requires no server, and
+shapes its output around what an auditor asks for.
 
 ## Future work
 

@@ -243,7 +243,7 @@ class TestEvidence:
                               [build_attestation(df, "s" * 64)],
                               expected_reviewers=["boss", "slacker"])
         assert "slacker" in report
-        assert "AC.L2-3.1.1" in report
+        assert "SOC 2" in report
 
     def test_report_escapes_html(self):
         df = decision_file({("G1", "jdoe")}, decision="revoke",

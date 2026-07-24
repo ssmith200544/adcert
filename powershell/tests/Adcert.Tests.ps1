@@ -222,7 +222,7 @@ Describe 'New-ReviewHtml and New-EvidenceReport' {
             -ExpectedReviewers @('boss', 'slacker')
         $report | Should -Not -Match '<script>alert'
         $report | Should -Match 'slacker'
-        $report | Should -Match 'AC.L2-3.1.1'
+        $report | Should -Match 'SOC 2'
     }
 }
 
@@ -249,5 +249,31 @@ Describe 'Config plumbing from real JSON' {
         }
         $adminEntries.Count | Should -BeGreaterThan 0
         ($adminEntries[0]['flags'] -join ' ') | Should -Match 'Privileged group'
+    }
+}
+
+Describe 'Configurable compliance framing' {
+    It 'uses the default framing when none is supplied' {
+        $df = @{ reviewer='boss'; review_id='ab'; snapshot_sha256=('s'*64)
+                 decided_at=Get-UtcNowIso
+                 decisions=@(@{group='G';sam='a';decision='retain';justification=''}) }
+        $report = New-EvidenceReport -Campaign 'C' -SnapshotSha256 ('s'*64) `
+            -Attestations @((New-Attestation -Decision $df -SnapshotSha256 ('s'*64))) `
+            -ExpectedReviewers @('boss')
+        $report | Should -Match 'SOC 2'
+        $report | Should -Match 'Periodic access review'
+    }
+    It 'honors a custom compliance block from config' {
+        $compliance = @{ framework='ISO 27001'
+                         summary='Custom summary for ISO 27001 A.5.18.'
+                         controls=@('A.5.18 Access rights') }
+        $df = @{ reviewer='boss'; review_id='ab'; snapshot_sha256=('s'*64)
+                 decided_at=Get-UtcNowIso
+                 decisions=@(@{group='G';sam='a';decision='retain';justification=''}) }
+        $att = New-Attestation -Decision $df -SnapshotSha256 ('s'*64) -Controls @($compliance['controls'])
+        $att['controls'] | Should -Contain 'A.5.18 Access rights'
+        $report = New-EvidenceReport -Campaign 'C' -SnapshotSha256 ('s'*64) `
+            -Attestations @($att) -ExpectedReviewers @('boss') -Compliance $compliance
+        $report | Should -Match 'ISO 27001 A.5.18'
     }
 }

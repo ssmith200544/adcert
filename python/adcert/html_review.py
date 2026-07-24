@@ -2,7 +2,7 @@
 
 Design constraints (deliberate):
   * single file, zero server, zero install -- opens in any browser, works in
-    an air-gapped enclave, nothing to accredit
+    an air-gapped network, nothing to install
   * three-decision model (Retain / Revoke / Modify) with justification
     required for anything other than Retain
   * risky rows first; flags rendered as plain-language chips
@@ -95,7 +95,7 @@ _PAGE = """<!DOCTYPE html>
     For each row decide whether the access is still required. <b>Revoke</b> and
     <b>Modify</b> require a short justification; a comment on Retain is optional
     but encouraged for privileged or dormant accounts. Your decisions become part
-    of the enclave's access-control evidence (NIST SP 800-171 3.1.1 / 3.1.2).
+    of the organization's access-review evidence.
   </div>
   <div class="prog"><div class="bar"><i id="fill"></i></div><span id="count"></span></div>
   <div id="list"></div>

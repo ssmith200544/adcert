@@ -1,18 +1,23 @@
 {
-  "_comment": "adcert campaign config. 'reviewers' maps group -> reviewer sam; members of unmapped groups route to their own AD manager attribute. '_escalation' receives entries where the mapped reviewer would be certifying their own access. 'plain_language' descriptions appear on every review row — write them for the supervisor, not the sysadmin.",
+  "_comment": "adcert campaign config. 'reviewers' maps a group to a reviewer's sam; members of unmapped groups route to their own AD manager attribute. '_escalation' receives entries where the mapped reviewer would be certifying their own access. 'plain_language' is what the supervisor reads for each group - write it in business terms, not technical ones. The optional 'compliance' block maps the evidence report to whatever framework you report against (SOC 2, ISO 27001, HIPAA, PCI DSS, NIST, or internal audit); omit it to use the generic default.",
+  "compliance": {
+    "framework": "User Access Review",
+    "summary": "Evidences periodic review of user access rights and enforcement of least privilege, supporting access-recertification controls found in SOC 2 (CC6.1-CC6.3), ISO 27001 (A.5.18), HIPAA Security Rule (164.308(a)(4)), PCI DSS (Req. 7), and NIST 800-53 (AC-2).",
+    "controls": ["Periodic access review", "Least-privilege enforcement", "Timely access revocation"]
+  },
   "groups": [
-    { "name": "Enclave-HPC-Users",
-      "plain_language": "Members can log into the enclave HPC nodes and run jobs against CUI datasets." },
-    { "name": "Enclave-Storage-RW",
-      "plain_language": "Members can read and modify files on the CUI project shares." },
-    { "name": "Enclave-VPN-Access",
-      "plain_language": "Members can reach the enclave network remotely through the VPN." },
-    { "name": "Enclave-Admins",
-      "plain_language": "Members hold administrative rights over enclave servers. Privileged group." }
+    { "name": "Finance-App",
+      "plain_language": "Members can sign in to the finance application and view or edit financial records." },
+    { "name": "HR-Records",
+      "plain_language": "Members can read and update employee records in the HR system." },
+    { "name": "VPN-Users",
+      "plain_language": "Members can connect to the corporate network remotely over the VPN." },
+    { "name": "App-Admins",
+      "plain_language": "Members hold administrator rights over the application. Privileged group." }
   ],
   "reviewers": {
-    "Enclave-Admins": "alindqvist",
-    "_escalation": "alindqvist"
+    "App-Admins": "manager1",
+    "_escalation": "manager1"
   },
-  "privileged_groups": ["Enclave-Admins"]
+  "privileged_groups": ["App-Admins"]
 }

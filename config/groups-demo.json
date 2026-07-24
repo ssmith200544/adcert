@@ -1,17 +1,20 @@
 {
-  "_comment": "Small demo config to pair with Seed-DemoLab.ps1. No group-to-reviewer mappings, so every grant routes to that person's own AD manager - the simplest routing story to narrate on camera. Grants whose owner cannot be resolved land in the _unrouted package instead of being dropped.",
+  "_comment": "Minimal demo config to pair with Seed-DemoLab.ps1. Pure manager-based routing (no group-to-reviewer mappings), which is the simplest story to narrate: each manager reviews their own reports. Grants whose owner has no manager land in the _unrouted package instead of being dropped.",
+  "compliance": {
+    "framework": "User Access Review",
+    "summary": "Evidences periodic review of user access rights and enforcement of least privilege, supporting access-recertification controls found in SOC 2 (CC6.1-CC6.3), ISO 27001 (A.5.18), HIPAA Security Rule (164.308(a)(4)), PCI DSS (Req. 7), and NIST 800-53 (AC-2).",
+    "controls": ["Periodic access review", "Least-privilege enforcement", "Timely access revocation"]
+  },
   "groups": [
-    { "name": "Enclave-HPC-Users",
-      "plain_language": "Members can log into the enclave HPC nodes and run jobs against CUI datasets." },
-    { "name": "Enclave-Storage-RW",
-      "plain_language": "Members can read and modify files on the CUI project shares." },
-    { "name": "Enclave-VPN-Access",
-      "plain_language": "Members can reach the enclave network remotely through the VPN." },
-    { "name": "Enclave-Admins",
-      "plain_language": "Members hold administrative rights over enclave servers. Privileged group." }
+    { "name": "Finance-App",
+      "plain_language": "Members can sign in to the finance application and view or edit financial records." },
+    { "name": "VPN-Users",
+      "plain_language": "Members can connect to the corporate network remotely over the VPN." },
+    { "name": "App-Admins",
+      "plain_language": "Members hold administrator rights over the application. Privileged group." }
   ],
   "reviewers": {
-    "_escalation": "alindqvist"
+    "_escalation": "manager1"
   },
-  "privileged_groups": ["Enclave-Admins"]
+  "privileged_groups": ["App-Admins"]
 }
