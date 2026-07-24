@@ -35,14 +35,14 @@ the exact next command with your paths filled in.
 
 ## Requirements
 
-• Windows 10/11 or Windows Server 2016+
-• Windows PowerShell 5.1
-• RSAT Active Directory PowerShell module
-• Domain-joined workstation
-• Read access to Active Directory
-• Edge or Chrome for reviewers
-• Optional: Pester 5 for unit tests
-• Optional: Python 3.11+ and pytest (reference implementation only)
+Windows 10/11 or Windows Server 2016+
+Windows PowerShell 5.1
+RSAT Active Directory PowerShell module
+Domain-joined workstation
+Read access to Active Directory
+Modern Browser (e.g. Chrome, Edge, Firefox)
+Optional: Pester 5 for unit tests
+Optional: Python 3.11+ and pytest (reference implementation only)
 
 ## Quick start
 
