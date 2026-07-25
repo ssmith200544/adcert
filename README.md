@@ -1,5 +1,7 @@
 # adcert — Periodic Access Review, Made Humane
 
+**CSC-842 Security Tool Development — Human, Privacy, & Trust-Centered Security**
+
 adcert turns the quarterly access-review ritual — a spreadsheet emailed to
 supervisors who rubber-stamp it — into a small, focused, evidence-producing
 workflow for any organization that runs Active Directory. It helps satisfy the
@@ -7,7 +9,7 @@ periodic user-access-review (access recertification) control common to SOC 2,
 ISO 27001, HIPAA, PCI DSS, NIST 800-53/800-171, and general IT audit.
 
 The design thesis: **reviewers rubber-stamp because they lack context, not
-because they don't care.** Give a supervisor only _their_ people, lead with
+because they don't care.** Give a supervisor only *their* people, lead with
 the risky rows, translate group names into plain language, show last-logon
 context at the moment of decision — and the review becomes real.
 
@@ -35,14 +37,34 @@ the exact next command with your paths filled in.
 
 ## Requirements
 
-- Windows 10/11 or Windows Server 2016+
-- Windows PowerShell 5.1
-- RSAT Active Directory PowerShell module
-- Domain-joined workstation
-- Read access to Active Directory
-- Microsoft Edge or Google Chrome for reviewers
-- **Optional:** Pester 5 for unit tests
-- **Optional:** Python 3.11+ and pytest (reference implementation only)
+adcert runs entirely in Windows PowerShell 5.1 (stock on Windows Server
+2016 and later) and needs no other runtime — there is no Python, Node, or
+package install involved in the tool itself.
+
+To run against a live directory you need:
+
+- A **Windows Server** host acting as, or joined to, an **Active Directory
+  domain**, with the **RSAT ActiveDirectory PowerShell module** available
+  (installed automatically with the AD DS role; otherwise add it with
+  `Add-WindowsFeature RSAT-AD-PowerShell`).
+- An account with **read access** to the groups being reviewed. Executing
+  the generated revocation script additionally requires rights to modify
+  those groups.
+- A **web browser** (Edge or Chrome) for reviewers to open the HTML pages.
+
+To reproduce the demo lab from scratch:
+
+- A throwaway **Windows Server VM** (the free 180-day evaluation ISO is
+  fine; 2 vCPU / 4 GB RAM is plenty).
+- Promote it to a **domain controller** for a new forest named
+  **`adcert.lab`** (the seeder and teardown scripts refuse to run against
+  any other domain name, so they cannot touch a production directory).
+- Run `Seed-DemoLab.ps1` to create the fictional company, then the two
+  campaign commands below.
+
+The Pester test suite (`powershell/tests/Adcert.Tests.ps1`) exercises the
+scoring, routing, and evidence logic **without** Active Directory, so it can
+be run on any Windows machine to verify the engine.
 
 ## Quick start
 
@@ -75,46 +97,46 @@ seeder and the teardown both refuse to run against any domain but `adcert.lab`.
 
 ## What it produces
 
-| Artifact                      | Purpose                                                                                                                                                      |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Per-reviewer HTML review page | Self-contained, no server, works air-gapped. Retain / Revoke / Modify with required justifications.                                                          |
-| Attestation records (JSON)    | Hash-chained to the snapshot; tamper-evident.                                                                                                                |
-| Evidence report (HTML)        | Auditor-facing summary mapped to the access-review / least-privilege controls of whichever framework you configure (SOC 2, ISO 27001, HIPAA, PCI DSS, NIST). |
-| Revocation worklist (.ps1)    | Generated `Remove-ADGroupMember` commands, `-WhatIf` by default — decisions actually get executed.                                                           |
-| Outstanding tracker           | Reviewers who haven't returned decisions (in the report).                                                                                                    |
+| Artifact | Purpose |
+|---|---|
+| Per-reviewer HTML review page | Self-contained, no server, works air-gapped. Retain / Revoke / Modify with required justifications. |
+| Attestation records (JSON) | Hash-chained to the snapshot; tamper-evident. |
+| Evidence report (HTML) | Auditor-facing summary mapped to the access-review / least-privilege controls of whichever framework you configure (SOC 2, ISO 27001, HIPAA, PCI DSS, NIST). |
+| Revocation worklist (.ps1) | Generated `Remove-ADGroupMember` commands, `-WhatIf` by default — decisions actually get executed. |
+| Outstanding tracker | Reviewers who haven't returned decisions (in the report). |
 
 ## Design decisions
 
-- **One runtime, one machine** — Windows PowerShell 5.1 (stock on Server
+* **One runtime, one machine** — Windows PowerShell 5.1 (stock on Server
   2016+). Collection, scoring, HTML generation, and evidence compilation all
   run where the data lives. Nothing to install on a server, nothing to
   accredit.
-- **Static HTML instead of a web app** — the reviewer interface is a file,
+* **Static HTML instead of a web app** — the reviewer interface is a file,
   not a service: no server to stand up, delivery over email or file share,
   works air-gapped.
-- **Last-logon honesty** — the collector takes the most recent of
+* **Last-logon honesty** — the collector takes the most recent of
   `lastLogonTimestamp` (replicated, up to 14 days stale) and `lastLogon`
   (per-DC, immediate), and the review page carries the staleness caveat
   rather than presenting false precision.
-- **Integrity chain** — snapshot SHA-256 → embedded in every review package →
+* **Integrity chain** — snapshot SHA-256 → embedded in every review package →
   echoed in every decision file → hashed into every attestation
   (canonical-JSON SHA-256). Any post-hoc edit breaks the chain; `-Strict`
   mode refuses broken files.
-- **Revocations ship commented-safe** — `-WhatIf` until an operator sets
+* **Revocations ship commented-safe** — `-WhatIf` until an operator sets
   `$Commit = $true`.
-- **Nothing silently dropped** — grants with no resolvable reviewer land in
+* **Nothing silently dropped** — grants with no resolvable reviewer land in
   an explicit `_unrouted` package; a reviewer never certifies their own
   access (rerouted via the `_escalation` mapping).
 
 ## Configuration (`config/groups.json`)
 
-- `groups[].plain_language` — the sentence a supervisor actually reads
+* `groups[].plain_language` — the sentence a supervisor actually reads
   ("Members can sign in to the finance application"). Write it for the reviewer,
   not the sysadmin.
-- `reviewers` — group → reviewer routing; unmapped members route to their
+* `reviewers` — group → reviewer routing; unmapped members route to their
   own AD `manager` attribute; `_escalation` catches would-be
   self-certifications.
-- `privileged_groups` — risk multiplier + flag.
+* `privileged_groups` — risk multiplier + flag.
 
 ## Tests
 
@@ -134,7 +156,7 @@ routing, and evidence logic with a 30-case pytest suite
 Access certification is a mature commercial category (SailPoint, Saviynt,
 Okta Identity Governance; several vendors market compliance evidence reports) and
 open-source IAM suites (midPoint, OpenIAM) include certification campaigns.
-All of these assume you deploy an identity-governance _platform_. adcert
+All of these assume you deploy an identity-governance *platform*. adcert
 targets the gap below them: a small or mid-size organization (dozens to a few
 hundred users, one admin) where the realistic alternative isn't SailPoint — it's
 a spreadsheet. adcert reads the AD you already have, requires no server, and
@@ -148,3 +170,16 @@ scheduled campaign mode; optional SIEM ingestion of attestation records.
 ## License
 
 MIT
+
+## AI usage
+
+This project was developed with the assistance of an AI coding assistant
+(Anthropic's Claude). AI was used to help design the tool's architecture,
+draft and refactor the PowerShell module and scripts, generate the HTML
+review interface and evidence report, write the test suites, and produce
+documentation. All AI-generated code and content was reviewed, tested, and
+validated by the author in a Windows Server / Active Directory lab before
+inclusion. Design decisions, the choice of problem, the compliance framing,
+and final verification of behavior are the author's own. AI was not used to
+generate any real organizational data; all users, groups, and findings in
+the demo lab are fictional.
