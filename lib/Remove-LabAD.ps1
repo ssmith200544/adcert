@@ -14,10 +14,10 @@
   Safe to run more than once; anything already gone is simply skipped.
 
 .EXAMPLE
-  .\Remove-LabAD.ps1
+  .\adcert.ps1 lab remove
 
 .EXAMPLE
-  .\Remove-LabAD.ps1 -Force
+  .\adcert.ps1 lab remove -Force
 
 .NOTES
   Run as a Domain Admin on the lab DC.
@@ -126,4 +126,4 @@ foreach ($g in $strayGroups) {
 Write-Host ""
 Write-Host "=== Teardown complete ==="
 Write-Host "Verify in ADUC (dsa.msc) that the demo OU is gone, then seed a fresh lab:"
-Write-Host "    .\Seed-DemoLab.ps1"
+Write-Host "    .\adcert.ps1 lab seed"

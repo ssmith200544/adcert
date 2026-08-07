@@ -3,18 +3,38 @@
   "compliance": {
     "framework": "User Access Review",
     "summary": "Evidences periodic review of user access rights and enforcement of least privilege, supporting access-recertification controls found in SOC 2 (CC6.1-CC6.3), ISO 27001 (A.5.18), HIPAA Security Rule (164.308(a)(4)), PCI DSS (Req. 7), and NIST 800-53 (AC-2).",
-    "controls": ["Periodic access review", "Least-privilege enforcement", "Timely access revocation"]
+    "controls": [
+      "Periodic access review",
+      "Least-privilege enforcement",
+      "Timely access revocation"
+    ]
+  },
+  "smtp": {
+    "_comment": "Used only by 'adcert.ps1 send'. Reviewer addresses come from each account's AD mail attribute. Always try -DryRun first.",
+    "server": "smtp.example.com",
+    "port": 25,
+    "from": "access-reviews@example.com",
+    "use_ssl": false,
+    "subject": "Access review due: {campaign}"
   },
   "groups": [
-    { "name": "Finance-App",
-      "plain_language": "Members can sign in to the finance application and view or edit financial records." },
-    { "name": "VPN-Users",
-      "plain_language": "Members can connect to the corporate network remotely over the VPN." },
-    { "name": "App-Admins",
-      "plain_language": "Members hold administrator rights over the application. Privileged group." }
+    {
+      "name": "Finance-App",
+      "plain_language": "Members can sign in to the finance application and view or edit financial records."
+    },
+    {
+      "name": "VPN-Users",
+      "plain_language": "Members can connect to the corporate network remotely over the VPN."
+    },
+    {
+      "name": "App-Admins",
+      "plain_language": "Members hold administrator rights over the application. Privileged group."
+    }
   ],
   "reviewers": {
     "_escalation": "manager1"
   },
-  "privileged_groups": ["App-Admins"]
+  "privileged_groups": [
+    "App-Admins"
+  ]
 }

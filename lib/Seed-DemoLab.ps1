@@ -23,10 +23,10 @@
 
   DEMO LAB ONLY. Refuses to run unless the domain DNS root matches
   -ExpectedDomain (default adcert.lab). Re-runnable: existing objects are
-  updated rather than duplicated. Use Remove-LabAD.ps1 to tear it down.
+  updated rather than duplicated. Use 'adcert.ps1 lab remove' to tear it down.
 
 .EXAMPLE
-  .\Seed-DemoLab.ps1
+  .\adcert.ps1 lab seed
 
 .NOTES
   Run as a Domain Admin on the lab DC. Pair with config\groups-demo.json.
@@ -163,6 +163,6 @@ Write-Host "    1. Optional, for a 'logged on today' contrast on the review page
 Write-Host "         `$c = Get-Credential adcert\awong   # password: $SeedPassword"
 Write-Host "         New-PSSession -ComputerName localhost -Credential `$c | Remove-PSSession"
 Write-Host "    2. Build the campaign:"
-Write-Host "         .\New-AdcertCampaign.ps1 -Config ..\config\groups-demo.json -OutDir C:\adcert\UAR-Demo" -ForegroundColor Cyan
+Write-Host "         .\adcert.ps1 new -Config config\groups-demo.json -OutDir C:\adcert\UAR-Demo" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "    Tear the lab down again with .\Remove-LabAD.ps1"
+Write-Host "    Tear the lab down again with .\adcert.ps1 lab remove"
